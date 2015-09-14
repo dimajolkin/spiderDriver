@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <Servo.h>
 #include <Math.h>
 #include <stdio.h>
@@ -6,6 +7,8 @@
 #include "MServo.h"
 
 #define DEBUG;
+#define N 6
+#define S 3
 
 typedef int INT;
 
@@ -18,9 +21,6 @@ INT servos[6][3][2]{
         {{133, 40}, {133, 40}, {133, 40}}   // 5
 };
 
-
-#define N 6
-#define S 3
 INT pins[N][S]{
         {30, 28, 26},
         {24, 22, 20},
@@ -31,90 +31,73 @@ INT pins[N][S]{
 };
 
 INT angles[N][S]{
-        {0, 50, 0},
-        {0, 50, 0},
-        {0, 50, 0},
-        {0, 50, 0},
-        {0, 50, 0},
-        {0, 50, 0}
-};
-
-
-class Arm {
-
-private:
-    MServo s[3];
-    int tmp_angle;
-
-public:
-
-    Arm(int port1, int port2, int port3) {
-         s[0].attach(port1);
-         s[1].attach(port2);
-         s[2].attach(port3);
-    }
-
-
-    Arm() {
-
-    }
-
-    /**
-     *  ports - массив лимитов
-     *  n     - номер ноги
-     */
-    Arm(int n) {
-        for (INT i = 0; i < 3; i++) {
-            s[i].attach(pins[n][i]);
-            Serial.println(pins[n][i]);
-            s[i].setLimit(servos[n][i]);
-            s[i].setPos(0);
-        }
-    }
-
-    /**
-     * Вращение по кругу
-     */
-    void circle(int radius) {
-        int x = s[0].getPos();
-        int y = s[1].getPos();
-        int z = s[2].getPos();
-
-//        if (tmp_angle++ > 100) tmp_angle = 0;
-//        z = tmp_angle;
-
-
-//        x =  50 + radius * cos(tmp_angle * M_PI / 180);
-//        y =  50 + radius * sin(tmp_angle * M_PI / 180);
-
-
-        s[0].setPos(x);
-        s[1].setPos(y);
-        s[2].setPos(z);
-    }
-
-
+        {50, 0, 0},
+        {0, 0, 0},
+        {0, 0, 0},
+        {0, 0, 0},
+        {0, 0, 0},
+        {0, 0, 0}
 };
 
 
 
-
-
-
+MServo y;
+MServo x;
+MServo z;
 void setup() {
     Serial.begin(9600);
-    Arm arm(0);
+
+    x.attach(30);
+    x.setLimit(40, 130);
+    x.setPos(40);
+
+    y.attach(28);
+    y.setLimit(40,130);
+    y.setPos(40);
+
+    z.attach(26);
+    z.setLimit(40,130);
+    z.setPos(130);
+}
+
+void lapa_max(MServo y) {
+    delay(50);
+
+    for (int i=y.getMin();i< y.getMax();i++) {
+        y.setPos(i);
+        delay(50);
+    }
+
+    delay(50);
+
+    for (int i=y.getMax();i>y.getMin();i--) {
+        y.setPos(i);
+        delay(50);
+    }
 }
 
 
+
+
+int r = 40;
+float rad;
 int angle = 0;
-int x = 0;
-int y = 0;
 
 void loop() {
-    delay(50);
-   // arm.circle(50);
 
+    int cx = x.getMin() + ((x.getMax() - x.getMin()) / 2);
+    int cy = y.getMin() + ((y.getMax() - y.getMin()) / 2);
+
+    if (angle++ > 360) angle = 0;
+
+    int x1 = cx + r * cos( angle * M_PI / 180 );
+    int y1 = cy + r * sin( angle * M_PI / 180 );
+
+    x.setPos(x1);
+    y.setPos(y1);
+    z.setPos(y1 - 180);
+
+    delay(35);
 
 }
 

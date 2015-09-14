@@ -25,6 +25,7 @@ class MServo
     Point limit;
     float step;
     int   pos;
+    int current;
 public:
 
     MServo(int param[2])
@@ -37,12 +38,24 @@ public:
         }
 
         pos = limit.x;
+        current = 0;
 
     }
 
     MServo()
     {
+        pos = 0;
+        current = 0;
 
+    }
+    int getMin()
+    {
+        return  limit.x;
+    }
+
+    int getMax()
+    {
+        return limit.y;
     }
     /**
      * получение позиции серво
@@ -58,7 +71,6 @@ public:
     int setPos(int position)
     {
         write(position);
-        pos = position;
     }
 
     void setLimit(int param[2])
@@ -89,7 +101,9 @@ public:
      */
     void write(int position)
     {
-        servo.write(position * step);
+
+       servo.write(position );
+
     }
 
 
